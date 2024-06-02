@@ -2,11 +2,11 @@
 GET http://localhost:8888/hello
 
 ### GET gw
-GET http://localhost:8888/gw
+GET http://localhost:8888/ga
 
 
 ### POST user
-POST http://localhost:8888/gw/com.stephenshen.ssrpc.demo.api.UserService
+POST http://localhost:8888/ga/com.stephenshen.ssrpc.demo.api.UserService
 Content-Type: application/json
 
 {
