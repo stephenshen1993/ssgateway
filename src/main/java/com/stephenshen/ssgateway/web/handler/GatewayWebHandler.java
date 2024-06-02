@@ -1,6 +1,7 @@
 package com.stephenshen.ssgateway.web.handler;
 
 import com.stephenshen.ssgateway.DefaultGatewayPluginChain;
+import com.stephenshen.ssgateway.GatewayFilter;
 import com.stephenshen.ssgateway.GatewayPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,9 @@ public class GatewayWebHandler implements WebHandler {
     @Autowired
     private List<GatewayPlugin> plugins;
 
+    @Autowired
+    private List<GatewayFilter> filters;
+
     @Override
     public Mono<Void> handle(ServerWebExchange exchange) {
         System.out.println("====> ss gateway web handler ...");
@@ -33,6 +37,10 @@ public class GatewayWebHandler implements WebHandler {
             return exchange.getResponse()
                     .writeWith(Mono.just(exchange.getResponse().bufferFactory().wrap(mock.getBytes())));
 
+        }
+
+        for (GatewayFilter filter : filters) {
+            filter.handle(exchange);
         }
 
         return new DefaultGatewayPluginChain(plugins).handle(exchange);
