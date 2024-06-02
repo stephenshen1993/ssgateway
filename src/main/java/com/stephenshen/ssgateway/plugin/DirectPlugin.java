@@ -1,6 +1,7 @@
 package com.stephenshen.ssgateway.plugin;
 
 import com.stephenshen.ssgateway.AbstractPlugin;
+import com.stephenshen.ssgateway.GatewayPluginChain;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -20,7 +21,7 @@ public class DirectPlugin extends AbstractPlugin {
     private String prefix = GATEWAY_PREFIX + "/" + NAME + "/";
 
     @Override
-    public Mono<Void> doHandle(ServerWebExchange exchange) {
+    public Mono<Void> doHandle(ServerWebExchange exchange, GatewayPluginChain chain) {
         System.out.println("======>>>>>> [DirectPlugin] ...");
         String backend = exchange.getRequest().getQueryParams().getFirst("backend");
         Flux<DataBuffer> requestBody = exchange.getRequest().getBody();
@@ -30,7 +31,8 @@ public class DirectPlugin extends AbstractPlugin {
         exchange.getResponse().getHeaders().add("ss.gw.plugin", getName());
 
         if (backend == null || backend.isEmpty()) {
-            return requestBody.flatMap(x -> exchange.getResponse().writeWith(Mono.just(x))).then();
+            return requestBody.flatMap(x -> exchange.getResponse().writeWith(Mono.just(x)))
+                    .then(chain.handle(exchange));
         }
 
         WebClient client = WebClient.create(backend);
@@ -40,7 +42,8 @@ public class DirectPlugin extends AbstractPlugin {
         Mono<String> body = entity.map(ResponseEntity::getBody);
 
         return body.flatMap(x -> exchange.getResponse()
-                .writeWith(Flux.just(exchange.getResponse().bufferFactory().wrap(x.getBytes()))));
+                .writeWith(Flux.just(exchange.getResponse().bufferFactory().wrap(x.getBytes()))))
+                .then(chain.handle(exchange));
     }
 
     @Override

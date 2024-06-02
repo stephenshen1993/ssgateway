@@ -1,6 +1,7 @@
 package com.stephenshen.ssgateway.plugin;
 
 import com.stephenshen.ssgateway.AbstractPlugin;
+import com.stephenshen.ssgateway.GatewayPluginChain;
 import com.stephenshen.ssrpc.core.api.LoadBalancer;
 import com.stephenshen.ssrpc.core.api.RegistryCenter;
 import com.stephenshen.ssrpc.core.cluster.RandomLoadBalancer;
@@ -34,7 +35,7 @@ public class SSRpcPlugin extends AbstractPlugin {
     LoadBalancer<InstanceMeta> loadBalancer = new RandomLoadBalancer<>();
 
     @Override
-    public Mono<Void> doHandle(ServerWebExchange exchange) {
+    public Mono<Void> doHandle(ServerWebExchange exchange, GatewayPluginChain chain) {
         System.out.println("======>>>>>> [SSRpcPlugin] ...");
 
         // 1、通过请求路径获取服务名
@@ -66,7 +67,8 @@ public class SSRpcPlugin extends AbstractPlugin {
         exchange.getResponse().getHeaders().add("ss.gw.version", "v1.0.0");
         exchange.getResponse().getHeaders().add("ss.gw.plugin", getName());
         return body.flatMap(x -> exchange.getResponse()
-                .writeWith(Flux.just(exchange.getResponse().bufferFactory().wrap(x.getBytes()))));
+                .writeWith(Flux.just(exchange.getResponse().bufferFactory().wrap(x.getBytes()))))
+                .then(chain.handle(exchange));
     }
 
     @Override
