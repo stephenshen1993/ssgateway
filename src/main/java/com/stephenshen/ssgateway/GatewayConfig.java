@@ -12,6 +12,8 @@ import org.springframework.web.reactive.handler.SimpleUrlHandlerMapping;
 import java.util.Map;
 import java.util.Properties;
 
+import static com.stephenshen.ssgateway.GatewayPlugin.GATEWAY_PREFIX;
+
 /**
  * gateway config.
  *
@@ -31,7 +33,7 @@ public class GatewayConfig {
         return args -> {
             SimpleUrlHandlerMapping handlerMapping = context.getBean(SimpleUrlHandlerMapping.class);
             Properties mappings = new Properties();
-            mappings.put("/ga/**", "gatewayWebHandle");
+            mappings.put(GATEWAY_PREFIX + "/**", "gatewayWebHandler");
             handlerMapping.setMappings(mappings);
             handlerMapping.initApplicationContext();
             System.out.println("ssrpc gateway start");

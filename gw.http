@@ -2,11 +2,31 @@
 GET http://localhost:8888/hello
 
 ### GET gw
-GET http://localhost:8888/ga
+GET http://localhost:8888/gw
 
 
-### POST user
-POST http://localhost:8888/ga/com.stephenshen.ssrpc.demo.api.UserService
+### POST ssrpc
+POST http://localhost:8888/gw/ssrpc/com.stephenshen.ssrpc.demo.api.UserService
+Content-Type: application/json
+
+{
+  "service": "com.stephenshen.ssrpc.demo.api.UserService",
+  "methodSign": "findById@1_int",
+  "args": [100]
+}
+
+### POST derect
+POST http://localhost:8888/gw/direct/com.stephenshen.ssrpc.demo.api.UserService
+Content-Type: application/json
+
+{
+  "service": "com.stephenshen.ssrpc.demo.api.UserService",
+  "methodSign": "findById@1_int",
+  "args": [100]
+}
+
+### POST derect backend
+POST http://localhost:8888/gw/direct/com.stephenshen.ssrpc.demo.api.UserService?backend=http://localhost:8081/ssrpc
 Content-Type: application/json
 
 {
